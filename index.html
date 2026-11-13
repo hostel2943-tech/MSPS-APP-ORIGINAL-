@@ -168,7 +168,7 @@ input,select,textarea{font-size:16px;min-height:44px}
 const URL="https://phhwrfqlswvhfsdymnin.supabase.co";
 const KEY="sb_publishable_WmTdaMTqr5AKzPMOZYADaA_pUASFYnO";
 const sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:true,detectSessionInUrl:false}});
-let students=[],events=[],activePanel="",cachedDashboard=null;
+let students=[],events=[],activePanel="",cachedDashboard=null,baseLoaded=false,studentSearchIndex=[];
 const $=id=>document.getElementById(id);
 const money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 function msg(el,text,type="ok"){el.textContent=text;el.className="msg "+type}
@@ -247,7 +247,9 @@ async function loadBase(){
  const [s,e,d,dep,wd]=await Promise.all([api({action:"list_students"}),api({action:"list_events"}),reports({action:"dashboard"}),reports({action:"deposits",date}),reports({action:"withdrawals",date})]);
  students=Array.isArray(s)?s:(s?.students||[]);
  events=Array.isArray(e)?e:(e?.events||[]);
+ studentSearchIndex=students.map(student=>({student,searchText:[student.name,student.student_code,student.class].map(value=>String(value||"").toLowerCase()).join(" ")}));
  cachedDashboard=d;
+ baseLoaded=true;
  const held=d?.total_fund?.total_balance_held ?? d?.total_fund?.total_held ?? 0;
  $("studentCountStat").innerHTML=`${students.length}<em>Registered students</em>`;
  $("fundTotalStat").innerHTML=`${money(held)}<em>Current total held</em>`;
@@ -258,7 +260,7 @@ async function refresh(){try{await loadBase();if(activePanel)openPanel(activePan
 function showDashboardMetrics(){ /* Live figures are displayed inside the four main dashboard icons. */ }
 async function openPanel(key){
  try{
-  if(!students.length||!events.length)await loadBase();
+  if(!baseLoaded)await loadBase();
   if(key==="students")return studentsPanel();
   if(key==="fund"){
    showPanel(key,"Total Balance Held",`<div class="actions"><button class="btn secondary" id="printFundHistory" type="button" disabled>Print complete report</button></div><div id="fundReportPrintable"><div class="notice">Loading balance figures and transaction history…</div></div>`);
@@ -303,7 +305,7 @@ function studentsPanel(){
 }
 function renderStudentTable(){
  const q=($("studentSearch")?.value||"").toLowerCase();
- const rows=students.filter(s=>[s.name,s.student_code,s.class].some(x=>String(x||"").toLowerCase().includes(q)));
+ const rows=studentSearchIndex.filter(entry=>entry.searchText.includes(q)).map(entry=>entry.student);
  const headers="<thead><tr><th>Name</th><th>Current Balance</th><th>Deposit</th><th>Withdraw</th><th>Borrow</th><th>Edit</th><th>Statement</th></tr></thead>";
  const body=rows.map(s=>`<tr><td class="student-name">${esc(s.name)}<span class="student-meta">${esc(s.class||"—")} · ID: ${esc(s.student_code)}</span></td><td class="student-balance">${money(s.current_balance)}</td><td>${btn("Deposit",`txn:${s.student_id}:deposit`)}</td><td>${btn("Withdraw",`txn:${s.student_id}:withdrawal`,"btn secondary")}</td><td>${btn("Borrow",`txn:${s.student_id}:borrowing`,"btn secondary")}</td><td>${btn("Edit",`edit:${s.student_id}`,"btn secondary")}</td><td>${btn("Statement",`statement:${s.student_id}`,"btn secondary")}</td></tr>`).join("");
  $("studentTable").innerHTML=rows.length?`<div class="student-table-wrap" aria-label="Registered students table; swipe horizontally to see all columns"><table class="student-table">${headers}<tbody>${body}</tbody></table></div><p class="muted">Swipe left or right to view all columns.</p>`:`<div class="empty">No students found.</div>`;
