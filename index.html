@@ -569,11 +569,15 @@ $("panelBody").addEventListener("submit",async e=>{
   // If this form remains open after a successful operation, require the warden
   // to enter the Common PIN again before another transaction can be submitted.
   if(form.isConnected){
-   if(["studentTxnForm","manualForm","registeredContributionForm","transferForm","wardenForm"].includes(form.id)){
+   const transactionForm=["studentTxnForm","manualForm","registeredContributionForm","transferForm","wardenForm"].includes(form.id);
+   if(transactionForm){
     form.querySelectorAll('input[type="password"]').forEach(input=>{input.value="";});
+    // Keep the transaction submit button disabled after the first successful tap.
+    // The user must reopen the transaction form before making another transaction.
+   }else{
+    if(submitButton){submitButton.disabled=false;submitButton.textContent=submitButton.dataset.originalText||submitButton.textContent;}
+    __mspsSubmittingForms.delete(form);
    }
-   if(submitButton){submitButton.disabled=false;submitButton.textContent=submitButton.dataset.originalText||submitButton.textContent;}
-   __mspsSubmittingForms.delete(form);
   }
  }catch(x){
   __mspsSubmittingForms.delete(form);
