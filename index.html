@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#10243a"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="application-name" content="MSP"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="amu-icon.svg" type="image/svg+xml">
 <title>MSPS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
 <style>
 :root{--navy:#10243a;--blue:#1769aa;--bg:#f3f6fa;--card:#fff;--line:#dce3eb;--muted:#667085;--green:#067647;--red:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#182230}
@@ -124,6 +125,131 @@ input,select,textarea{font-size:16px;min-height:44px}
 
 #printRoot{display:none}
 @media print{@page{size:auto;margin:12mm}html,body{height:auto!important;overflow:visible!important;background:#fff!important}body>*:not(#printRoot){display:none!important}#printRoot{display:block!important;position:static!important;width:100%!important;padding:0!important;margin:0!important;color:#111!important;background:#fff!important;font-family:Arial,sans-serif}#printRoot h1{text-align:center;font-size:19px;margin:0 0 8px}#printRoot .print-meta{font-size:11px;margin:8px 0 14px}#printRoot .table-wrap{overflow:visible!important}#printRoot table{width:100%!important;border-collapse:collapse;min-width:0!important;font-size:10px;table-layout:auto}#printRoot th,#printRoot td{border:1px solid #888;padding:6px;text-align:left;color:#111!important;white-space:normal!important;overflow-wrap:anywhere}#printRoot th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}#printRoot tr{break-inside:avoid;page-break-inside:avoid}}
+
+
+/* PC-first presentation layer. Existing mobile rules and application logic remain intact. */
+@media (min-width: 900px) {
+  html, body { min-height: 100%; }
+  body { min-height: 100vh; touch-action: auto; }
+  header { padding: 18px clamp(24px, 3vw, 52px); }
+  .brand { font-size: 22px; }
+  main {
+    width: min(96vw, 1680px);
+    max-width: 1680px;
+    padding: 30px clamp(24px, 3vw, 52px) 56px;
+  }
+  .welcome { margin-bottom: 26px; }
+  .welcome h1 { font-size: 30px; }
+  .welcome p { font-size: 14px; }
+  .section-title { font-size: 14px; margin: 28px 0 14px; }
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+  .small-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .tile {
+    min-height: 142px;
+    padding: 20px;
+    border-radius: 15px;
+  }
+  .tile .ico { width: 42px; height: 42px; font-size: 23px; margin-bottom: 14px; }
+  .tile strong { font-size: 15px; }
+  .tile small { font-size: 12px; line-height: 1.45; }
+  .tile .tile-stat { font-size: 19px; }
+  .small-grid .tile { min-height: 126px; padding: 17px; }
+  .small-grid .ico { width: 36px; height: 36px; font-size: 20px; }
+  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .metric { padding: 16px; }
+  .metric span { font-size: 12px; }
+  .metric strong { font-size: 21px; }
+  .btn { padding: 11px 16px; font-size: 13px; }
+  input, select, textarea { font-size: 15px; min-height: 42px; }
+  label { font-size: 13px; }
+  .notice, .muted { font-size: 13px; }
+  table { font-size: 13px; }
+  th { font-size: 12px; }
+  th, td { padding: 11px 12px; }
+
+  /* Main pop-up grows with its content; long content scrolls inside the body. */
+  .panel {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(88vw, 1480px);
+    max-width: 1480px;
+    max-height: 90vh;
+    padding: 24px;
+    border-radius: 16px;
+  }
+  .panel.show {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    max-height: 90vh;
+  }
+  .panel-head {
+    position: relative;
+    top: auto;
+    flex: 0 0 auto;
+    padding: 0 0 15px;
+    margin: 0 0 18px;
+  }
+  .panel-head h2 { font-size: 21px; }
+  #panelBody {
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: calc(90vh - 100px);
+    overflow: auto;
+    padding: 0 2px 12px 0;
+  }
+  #panelMsg { flex: 0 0 auto; }
+
+  /* Let compact tasks stay compact; widen data-heavy views for useful working room. */
+  #panel:has(.table-wrap),
+  #panel:has(.student-table-wrap),
+  #panel:has(.cards),
+  #panel:has(.student-controls),
+  #panel:has(#studentTable) {
+    width: min(92vw, 1560px);
+  }
+  #panel:has(form) {
+    width: min(72vw, 1050px);
+  }
+  #panel:has(.table-wrap) #panelBody,
+  #panel:has(.student-table-wrap) #panelBody {
+    overflow: auto;
+  }
+
+  /* Nested dialogs are larger on desktop but still sized to their content. */
+  .mini-modal { padding: 4vh 3vw; }
+  .mini-dialog {
+    width: clamp(480px, 52vw, 820px);
+    max-width: 90vw;
+    max-height: 88vh;
+    padding: 24px;
+    border-radius: 16px;
+  }
+  .mini-dialog h3 { font-size: 19px; margin-bottom: 18px; }
+  .student-controls { grid-template-columns: minmax(220px, 1fr) minmax(300px, 2fr); align-items: end; }
+  .student-controls > .btn { width: auto; }
+}
+
+/* Extra-wide monitors: make better use of the available dashboard canvas. */
+@media (min-width: 1400px) {
+  .small-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+
+/* Android phone fixes: stable register size and keyboard-aware forms */
+@media(max-width:600px){
+ #panel.show:has(.student-controls){height:78dvh;max-height:88dvh;min-height:420px;}
+ #panel.show:has(.student-controls) #panelBody{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;}
+ #panel.show:has(.student-controls) .student-controls{position:sticky;top:0;z-index:3;background:#fff;padding:2px 0 8px;}
+ #panel.show:has(form) #panelBody{scroll-padding-bottom:24px;}
+ .panel form .field{max-width:none;}
+ .panel input,.panel textarea,.panel select{scroll-margin-top:12px;scroll-margin-bottom:18px;}
+ .mini-modal.show{align-items:flex-start;padding:8px 8px max(8px,env(safe-area-inset-bottom));overflow-y:auto;}
+ .mini-dialog{max-height:calc(100dvh - 16px);margin:auto 0;}
+}
+@media(max-width:600px) and (max-height:520px){#panel.show:has(.student-controls){min-height:0;height:88dvh}}
 
 </style>
 </head>
@@ -257,6 +383,7 @@ async function loadBase(){
  $("withdrawalTotalStat").innerHTML=`${money(wd?.total||0)}<em>Today's withdrawals</em>`;
 }
 async function refresh(){try{await loadBase();if(activePanel)openPanel(activePanel);else showDashboardMetrics()}catch(e){alert("Refresh failed: "+e.message)}}
+function refreshBaseInBackground(){loadBase().then(()=>{if(activePanel==="students"&&$("studentSearch"))renderStudentTable()}).catch(()=>{});}
 function showDashboardMetrics(){ /* Live figures are displayed inside the four main dashboard icons. */ }
 async function openPanel(key){
  try{
@@ -296,7 +423,8 @@ async function openPanel(key){
 }
 function metric(label,value){return `<div class="metric"><span>${label}</span><strong>${money(value)}</strong></div>`}
 function studentsPanel(){
- showPanel("students","Registered Students",`<div class="student-controls"><button class="btn" type="button" id="toggleAddStudent">＋ Add Student</button><div class="field"><label>Search students</label><input id="studentSearch" placeholder="Search name, ID or class"></div></div><h3 style="font-size:15px;margin:16px 0 8px;color:var(--navy)">Registered Students</h3><div id="studentTable"></div><div id="studentAddModal" class="mini-modal" aria-hidden="true"><div class="mini-dialog" role="dialog" aria-modal="true" aria-labelledby="studentAddTitle"><h3 id="studentAddTitle">Add Student</h3><form id="studentForm">${field("Student name","studentName","Full name")} ${field("Class","studentClass","Class / batch")} ${field("Unique Student ID","studentCode","Unique ID")}<div class="actions"><button class="btn" type="submit">Save Student</button><button class="btn secondary" type="button" id="cancelAddStudent">Cancel</button></div></form></div></div>`);
+ const savedSearch=window.__mspsStudentSearch||"";
+ showPanel("students","Registered Students",`<div class="student-controls"><button class="btn" type="button" id="toggleAddStudent">＋ Add Student</button><div class="field"><label>Search students</label><input id="studentSearch" value="${esc(savedSearch)}" autocomplete="off" placeholder="Search name, ID or class"></div></div><h3 style="font-size:15px;margin:16px 0 8px;color:var(--navy)">Registered Students</h3><div id="studentTable"></div><div id="studentAddModal" class="mini-modal" aria-hidden="true"><div class="mini-dialog" role="dialog" aria-modal="true" aria-labelledby="studentAddTitle"><h3 id="studentAddTitle">Add Student</h3><form id="studentForm">${field("Student name","studentName","Full name")} ${field("Class","studentClass","Class / batch")} ${field("Unique Student ID","studentCode","Unique ID")}<div class="actions"><button class="btn" type="submit">Save Student</button><button class="btn secondary" type="button" id="cancelAddStudent">Cancel</button></div></form></div></div>`);
  const modal=$("studentAddModal");document.body.appendChild(modal);
  $("toggleAddStudent").addEventListener("click",()=>openMiniModal(modal));
  $("cancelAddStudent").addEventListener("click",()=>closeMiniModal(modal));
@@ -305,6 +433,7 @@ function studentsPanel(){
 }
 function renderStudentTable(){
  const q=($("studentSearch")?.value||"").toLowerCase();
+ window.__mspsStudentSearch=$("studentSearch")?.value||"";
  const rows=studentSearchIndex.filter(entry=>entry.searchText.includes(q)).map(entry=>entry.student);
  const headers="<thead><tr><th>Name</th><th>Current Balance</th><th>Deposit</th><th>Withdraw</th><th>Borrow</th><th>Edit</th><th>Statement</th></tr></thead>";
  const body=rows.map(s=>`<tr><td class="student-name">${esc(s.name)}<span class="student-meta">${esc(s.class||"—")} · ID: ${esc(s.student_code)}</span></td><td class="student-balance">${money(s.current_balance)}</td><td>${btn("Deposit",`txn:${s.student_id}:deposit`)}</td><td>${btn("Withdraw",`txn:${s.student_id}:withdrawal`,"btn secondary")}</td><td>${btn("Borrow",`txn:${s.student_id}:borrowing`,"btn secondary")}</td><td>${btn("Edit",`edit:${s.student_id}`,"btn secondary")}</td><td>${btn("Statement",`statement:${s.student_id}`,"btn secondary")}</td></tr>`).join("");
@@ -365,8 +494,8 @@ document.addEventListener("click",async ev=>{
  const tile=ev.target.closest("[data-panel]");if(tile){await openPanel(tile.dataset.panel);return}
  const action=ev.target.closest("[data-action]")?.dataset.action;if(!action)return;
  try{
-  if(action.startsWith("txn:")){const [,id,type]=action.split(":");const s=students.find(x=>x.student_id===id);const label=type==="deposit"?"Deposit":type==="withdrawal"?"Withdrawal":"Borrow";showPanel("students",`${label} — ${s?.name||"Student"}`,`<form id="studentTxnForm"><input type="hidden" id="txnStudentId" value="${esc(id)}"><input type="hidden" id="txnType" value="${esc(type)}"><div class="field"><label>Amount (₹)</label><input id="txnAmount" type="number" min="0.01" step="0.01" required placeholder="Enter amount"></div><div class="field"><label>Optional note</label><textarea id="txnDescription" placeholder="Add a note (optional)"></textarea></div><div class="field"><label>Common PIN</label><input id="txnPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" maxlength="12" required placeholder="Enter Common PIN"></div><div class="actions"><button class="btn" type="submit">Confirm ${label}</button><button class="btn secondary" type="button" id="cancelTxn">Cancel</button></div></form>`);return}
-  if(action.startsWith("edit:")){const id=action.split(":")[1];const s=students.find(x=>x.student_id===id);if(!s)throw new Error("Student not found.");showPanel("students",`Edit student: ${s.name}`,`<form id="editStudentForm"><input type="hidden" id="editStudentId" value="${esc(id)}"><div class="field"><label>Student name</label><input id="editStudentName" value="${esc(s.name)}" required></div><div class="field"><label>Class</label><input id="editStudentClass" value="${esc(s.class||"")}" required></div><div class="field"><label>Unique Student ID</label><input id="editStudentCode" value="${esc(s.student_code)}" required></div><div class="actions"><button class="btn" type="submit">Save changes</button><button class="btn secondary" type="button" id="cancelEdit">Cancel</button></div></form><div class="notice">Student profile editing updates only the student's name, class and unique ID. Financial history is not changed.</div>`);return}
+  if(action.startsWith("txn:")){window.__mspsStudentSearch=$("studentSearch")?.value||window.__mspsStudentSearch||"";const [,id,type]=action.split(":");const s=students.find(x=>x.student_id===id);const label=type==="deposit"?"Deposit":type==="withdrawal"?"Withdrawal":"Borrow";showPanel("students",`${label} — ${s?.name||"Student"}`,`<form id="studentTxnForm"><input type="hidden" id="txnStudentId" value="${esc(id)}"><input type="hidden" id="txnType" value="${esc(type)}"><div class="field"><label>Amount (₹)</label><input id="txnAmount" type="number" min="0.01" step="0.01" required placeholder="Enter amount"></div><div class="field"><label>Optional note</label><textarea id="txnDescription" placeholder="Add a note (optional)"></textarea></div><div class="field"><label>Common PIN</label><input id="txnPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" maxlength="12" required placeholder="Enter Common PIN"></div><div class="actions"><button class="btn" type="submit">Confirm ${label}</button><button class="btn secondary" type="button" id="cancelTxn">Cancel</button></div></form>`);return}
+  if(action.startsWith("edit:")){window.__mspsStudentSearch=$("studentSearch")?.value||window.__mspsStudentSearch||"";const id=action.split(":")[1];const s=students.find(x=>x.student_id===id);if(!s)throw new Error("Student not found.");showPanel("students",`Edit student: ${s.name}`,`<form id="editStudentForm"><input type="hidden" id="editStudentId" value="${esc(id)}"><div class="field"><label>Student name</label><input id="editStudentName" value="${esc(s.name)}" required></div><div class="field"><label>Class</label><input id="editStudentClass" value="${esc(s.class||"")}" required></div><div class="field"><label>Unique Student ID</label><input id="editStudentCode" value="${esc(s.student_code)}" required></div><div class="actions"><button class="btn" type="submit">Save changes</button><button class="btn secondary" type="button" id="cancelEdit">Cancel</button></div></form><div class="notice">Student profile editing updates only the student's name, class and unique ID. Financial history is not changed.</div>`);return}
   if(action.startsWith("statement:")){const id=action.split(":")[1];const student=students.find(x=>x.student_id===id);if(!student)throw new Error("Student not found.");const requestSerial=++statementRequestSerial;window.__mspsStatementRequest=requestSerial;showPanel("students",`Statement: ${student.name}`,`<div class="actions"><button class="btn secondary" id="printStudentStatement" type="button" disabled>Print statement</button></div><div id="studentStatementPrintable"><div class="notice">Loading student statement…</div></div>`);loadStudentStatement(id,requestSerial,student);return}
   if(action.startsWith("balance:")){const s=students.find(x=>x.student_id===action.split(":")[1]);if(!s)throw new Error("Student not found.");showPanel("students",`Current Balance — ${s.name}`,`<div class="metric"><span>${esc(s.student_code)} · ${esc(s.class||"")}</span><strong>${money(s.current_balance)}</strong></div>`);return}
   if(action.startsWith("eventreport:")){await eventReport(action.split(":")[1]);return}
@@ -413,16 +542,16 @@ $("panelBody").addEventListener("change",e=>{
  }
 });
 $("panelBody").addEventListener("submit",async e=>{
- e.preventDefault();try{
-  if(e.target.id==="studentTxnForm"){const amount=Number($("txnAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive amount.");await api({action:"student_transaction",pin:$("txnPin").value,student_id:$("txnStudentId").value,transaction_type:$("txnType").value,amount,description:$("txnDescription").value.trim()});await loadBase();studentsPanel();msg($("panelMsg"),"Financial transaction saved successfully.");}
-  if(e.target.id==="editStudentForm"){await api({action:"update_student",student_id:$("editStudentId").value,name:$("editStudentName").value.trim(),class:$("editStudentClass").value.trim(),student_code:$("editStudentCode").value.trim()});await loadBase();studentsPanel();msg($("panelMsg"),"Student details updated successfully.");}
+ e.preventDefault();const submitButton=e.target.querySelector('button[type="submit"],button:not([type])');if(submitButton){submitButton.disabled=true;submitButton.dataset.originalText=submitButton.textContent;submitButton.textContent="Processing…";}try{
+  if(e.target.id==="studentTxnForm"){const amount=Number($("txnAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive amount.");await api({action:"student_transaction",pin:$("txnPin").value,student_id:$("txnStudentId").value,transaction_type:$("txnType").value,amount,description:$("txnDescription").value.trim()});studentsPanel();msg($("panelMsg"),"Financial transaction saved successfully.");refreshBaseInBackground();}
+  if(e.target.id==="editStudentForm"){await api({action:"update_student",student_id:$("editStudentId").value,name:$("editStudentName").value.trim(),class:$("editStudentClass").value.trim(),student_code:$("editStudentCode").value.trim()});studentsPanel();msg($("panelMsg"),"Student details updated successfully.");refreshBaseInBackground();}
 
   if(e.target.id==="eventForm"){await api({action:"add_event",event_name:$("eventName").value.trim(),description:$("eventDesc").value.trim()});await loadBase();showPanel("addEvent","Add Event","<div class=notice>Event created successfully.</div>");}
-  if(e.target.id==="manualForm"){const pin=$("contributionPin").value;await api({action:"manual_event_contribution",pin,event_id:$("eventSelect").value,contributor_name:$("contributorName").value.trim(),amount:Number($("contributionAmount").value)});await loadBase();contributionPanel();msg($("panelMsg"),"Manual contribution saved successfully.");}
-  if(e.target.id==="registeredContributionForm"){const student_ids=[...$("contributionStudentList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);if(!student_ids.length)throw new Error("Select at least one registered student.");const amount=Number($("registeredContributionAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive contribution amount.");await api({action:"registered_event_contribution",event_id:$("registeredEventSelect").value,student_ids,amount,pin:$("registeredContributionPin").value,description:$("registeredContributionDescription").value.trim()});await loadBase();await contributionPanel();msg($("panelMsg"),`Contribution recorded for ${student_ids.length} student(s).`);}
-  if(e.target.id==="transferForm"){const sender_id=$("transferSender").value,receiver_id=$("transferReceiver").value;if(sender_id===receiver_id)throw new Error("Sender and receiver must be different students.");const amount=Number($("transferAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive transfer amount.");await api({action:"student_transfer",sender_id,receiver_id,amount,pin:$("transferPin").value,description:$("transferDescription").value.trim()});await loadBase();await openPanel("transfer");msg($("panelMsg"),"Student transfer completed successfully.");}
-  if(e.target.id==="wardenForm"){await api({action:"warden_transaction",pin:$("wardenPin").value,transaction_type:$("wardenType").value,amount:Number($("wardenAmount").value),description:$("wardenDescription").value.trim()});await wardenPanel();msg($("panelMsg"),"Warden transaction saved successfully.");}
- }catch(x){msg($("panelMsg"),x.message,"err")}
+  if(e.target.id==="manualForm"){const pin=$("contributionPin").value;await api({action:"manual_event_contribution",pin,event_id:$("eventSelect").value,contributor_name:$("contributorName").value.trim(),amount:Number($("contributionAmount").value)});msg($("panelMsg"),"Manual contribution saved successfully.");refreshBaseInBackground();}
+  if(e.target.id==="registeredContributionForm"){const student_ids=[...$("contributionStudentList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);if(!student_ids.length)throw new Error("Select at least one registered student.");const amount=Number($("registeredContributionAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive contribution amount.");await api({action:"registered_event_contribution",event_id:$("registeredEventSelect").value,student_ids,amount,pin:$("registeredContributionPin").value,description:$("registeredContributionDescription").value.trim()});msg($("panelMsg"),`Contribution recorded for ${student_ids.length} student(s).`);refreshBaseInBackground();}
+  if(e.target.id==="transferForm"){const sender_id=$("transferSender").value,receiver_id=$("transferReceiver").value;if(sender_id===receiver_id)throw new Error("Sender and receiver must be different students.");const amount=Number($("transferAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive transfer amount.");await api({action:"student_transfer",sender_id,receiver_id,amount,pin:$("transferPin").value,description:$("transferDescription").value.trim()});msg($("panelMsg"),"Student transfer completed successfully.");refreshBaseInBackground();}
+  if(e.target.id==="wardenForm"){await api({action:"warden_transaction",pin:$("wardenPin").value,transaction_type:$("wardenType").value,amount:Number($("wardenAmount").value),description:$("wardenDescription").value.trim()});msg($("panelMsg"),"Warden transaction saved successfully.");refreshBaseInBackground();}
+ }catch(x){msg($("panelMsg"),x.message,"err");if(submitButton){submitButton.disabled=false;submitButton.textContent=submitButton.dataset.originalText||"Submit"}}
 });
 $("panelBody").addEventListener("click",async e=>{
  if(e.target.id==="printFundHistory"){printCurrentReport("MSPS — Total Balance and Complete Transactions","fundReportPrintable");return}
@@ -528,5 +657,30 @@ if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostn
   });
 })();
 })();
+// Android WebView/Chrome keyboard handling. Uses the actual visual viewport, not a guessed keyboard height.
+(function(){
+ const panel=$("panel");
+ function syncAndroidViewport(){
+  if(!window.visualViewport||!panel)return;
+  const vv=window.visualViewport,keyboardOpen=(window.innerHeight-vv.height)>120;
+  if(keyboardOpen&&panel.classList.contains("show")){
+   panel.style.top=Math.max(6,vv.offsetTop+6)+"px";
+   panel.style.left="50%";panel.style.transform="translateX(-50%)";
+   panel.style.height=Math.max(240,vv.height-12)+"px";
+   panel.style.maxHeight=Math.max(240,vv.height-12)+"px";
+   panel.style.bottom="auto";
+   const body=$("panelBody");if(body){body.style.flex="1 1 auto";body.style.maxHeight="none";body.style.minHeight="0";body.style.overflowY="auto";}
+  }else{
+   panel.style.removeProperty("top");panel.style.removeProperty("left");panel.style.removeProperty("transform");panel.style.removeProperty("height");panel.style.removeProperty("max-height");panel.style.removeProperty("bottom");
+   const body=$("panelBody");if(body){body.style.removeProperty("flex");body.style.removeProperty("max-height");body.style.removeProperty("min-height");body.style.removeProperty("overflow-y");}
+  }
+ }
+ if(window.visualViewport){window.visualViewport.addEventListener("resize",syncAndroidViewport);window.visualViewport.addEventListener("scroll",syncAndroidViewport);}
+ document.addEventListener("focusin",e=>{if(e.target.matches("input,textarea,select")){setTimeout(()=>{syncAndroidViewport();e.target.scrollIntoView({block:"nearest",behavior:"smooth"});},80);}});
+ document.addEventListener("focusout",()=>setTimeout(syncAndroidViewport,180));
+ const observer=new MutationObserver(syncAndroidViewport);if(panel)observer.observe(panel,{attributes:true,attributeFilter:["class"]});
+})();
+
+
 </script>
 </body></html>
