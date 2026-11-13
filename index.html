@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#10243a"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="application-name" content="MSP"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="amu-icon.svg" type="image/svg+xml">
+<title>MSPS</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#10243a;--blue:#1769aa;--bg:#f3f6fa;--card:#fff;--line:#dce3eb;--muted:#667085;--green:#067647;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#182230}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:var(--navy);color:white;padding:17px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:4}
+.brand{font-weight:800;font-size:20px;letter-spacing:.3px}.subbrand{font-size:11px;color:#c5d2df;margin-top:3px}
+.header-right{display:flex;align-items:center;gap:12px}.who{font-size:12px;color:#d7e1ea;max-width:170px;overflow-wrap:anywhere}.logout{background:#ffffff18;color:white;border:1px solid #ffffff55;padding:9px 12px;border-radius:8px}
+main{max-width:1150px;margin:auto;padding:22px 16px 50px}.welcome{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px}.welcome h1{font-size:24px;margin:0;color:var(--navy)}.welcome p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.section-title{font-size:14px;font-weight:800;color:#344054;margin:23px 0 12px;text-transform:uppercase;letter-spacing:.6px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.small-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.tile{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:17px 14px;text-align:left;min-height:118px;box-shadow:0 2px 8px #10243a08;color:inherit}
+.tile:active{transform:scale(.99)}.tile .ico{width:38px;height:38px;border-radius:11px;background:#eaf2fa;color:var(--blue);display:grid;place-items:center;font-size:21px;margin-bottom:12px}
+.tile strong{display:block;font-size:14px;color:#172b43}.tile small{display:block;color:var(--muted);font-size:11px;line-height:1.4;margin-top:5px}.tile .tile-stat{display:block;color:var(--navy);font-size:17px;font-weight:800;line-height:1.25;margin-top:9px}.tile .tile-stat em{display:block;font-style:normal;color:var(--muted);font-size:10px;font-weight:500;margin-top:2px}
+.small-grid .tile{min-height:100px;padding:13px}.small-grid .ico{width:32px;height:32px;font-size:18px;margin-bottom:8px}
+.panel{display:none;position:fixed;z-index:20;top:50%;left:50%;transform:translate(-50%,-50%);width:min(94vw,900px);height:auto;max-height:calc(100dvh - 20mm);overflow:hidden;background:white;border:1px solid var(--line);border-radius:15px;margin:0;padding:18px;box-shadow:0 0 0 100vmax #10243a99,0 12px 40px #10243a35}.panel.show{display:block}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:15px}.panel-head h2{font-size:18px;margin:0;color:var(--navy)}.close{border:0;background:#eef2f6;border-radius:8px;padding:8px 11px;color:#344054}
+.row{display:flex;gap:10px;flex-wrap:wrap}.field{flex:1;min-width:160px;margin-bottom:10px}label{display:block;font-size:12px;font-weight:700;color:#475467;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:11px;background:white;color:#182230}textarea{min-height:75px;resize:vertical}
+.btn{border:0;border-radius:8px;padding:11px 14px;background:var(--blue);color:white;font-weight:700;font-size:13px}.btn.secondary{background:#edf2f7;color:#344054}.btn.danger{background:#b42318}.btn:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}.panel form .field{max-width:520px}.panel form .field input{display:block}.notice{padding:11px 12px;background:#f3f7fb;color:#526071;border-radius:9px;font-size:12px;line-height:1.5;margin:10px 0}.msg{display:none;padding:11px;border-radius:8px;margin:10px 0;font-size:13px;white-space:pre-wrap}.msg.ok{display:block;background:#ecfdf3;color:var(--green)}.msg.err{display:block;background:#fef3f2;color:var(--red)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}.metric{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:13px}.metric span{font-size:11px;color:var(--muted);display:block}.metric strong{font-size:19px;color:var(--navy);display:block;margin-top:6px;overflow-wrap:anywhere}
+.table-wrap{overflow:auto;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:550px;font-size:12px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid #edf0f4;vertical-align:top}th{background:#f7f9fc;color:#475467;font-size:11px}td .btn{padding:7px 9px;font-size:11px}
+.student-card{border:1px solid var(--line);border-radius:11px;padding:13px;margin:10px 0;background:#fff}.student-card-name{font-size:15px;font-weight:800;color:var(--navy)}.student-card-meta{font-size:11px;color:var(--muted);margin-top:3px}.student-card-balance{font-size:15px;font-weight:800;color:#172b43;margin:10px 0}.student-card .actions{margin:8px 0 0}.empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}
+#loginScreen{min-height:100vh;display:grid;place-items:center;padding:20px}.login-card{width:100%;max-width:430px;background:white;border:1px solid var(--line);border-radius:18px;padding:25px;box-shadow:0 12px 35px #10243a12}.logo{width:54px;height:54px;background:var(--navy);color:white;border-radius:16px;display:grid;place-items:center;font-size:24px;font-weight:800;margin:0 auto 14px}.login-card h1{text-align:center;color:var(--navy);font-size:23px;margin:0}.login-card p{text-align:center;color:var(--muted);font-size:13px;margin:7px 0 20px}
+
+button,.tile,.panel,.login-card,input,select,textarea{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .12s ease}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #84b8e8;outline-offset:2px}
+.btn:active,.logout:active{transform:translateY(1px)}
+.panel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.login-card{animation:loginIn .22s ease-out}
+@keyframes loginIn{from{opacity:.7;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.panel{top:50%;left:50%;width:calc(100vw - 4mm);max-height:calc(100dvh - 20mm);padding:12px;border-radius:13px}main{padding:16px 11px 36px}.login-card{padding:21px 18px}.student-card .actions .btn{flex:1 1 28%;min-width:0}}
+.hidden{display:none!important}.muted{color:var(--muted);font-size:12px}.pill{display:inline-block;background:#eef4fa;color:#315b80;padding:4px 7px;border-radius:20px;font-size:10px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.small-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.welcome h1{font-size:21px}}
+@media(max-width:420px){.small-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tile{min-height:108px;padding:13px}.small-grid .tile{min-height:94px}.who{display:none}}
+
+/* AMU Android-first layout */
+html{min-height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior-y:contain}
+body{min-height:100dvh;padding-bottom:env(safe-area-inset-bottom);touch-action:pan-y}
+button,.tile{ -webkit-tap-highlight-color:transparent;touch-action:manipulation }
+input,select,textarea{font-size:16px;min-height:44px}
+.panel{top:50%;left:50%;transform:translate(-50%,-50%);width:min(96vw,900px);height:auto;max-height:calc(100dvh - 20mm);border-radius:16px;padding:15px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.panel.show{display:flex;flex-direction:column}
+.panel-head{flex:0 0 auto;position:sticky;top:-15px;background:#fff;z-index:2;padding-top:4px}
+#panelBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+#panelMsg{flex:0 0 auto}
+@media(max-width:600px){
+ header{padding:10px 12px;min-height:54px}.brand{font-size:16px}.subbrand{font-size:9px}.header-right{gap:6px}.logout{padding:8px 9px;font-size:11px}
+ main{padding:8px 8px 14px}.welcome{align-items:center;margin:4px 0 8px}.welcome h1{font-size:19px}.welcome p{font-size:10px;margin-top:3px}.welcome>.btn{padding:8px 10px;font-size:11px}
+ .section-title{font-size:10px;letter-spacing:.45px;margin:9px 0 6px}
+ .grid{gap:7px}.small-grid{gap:7px}
+ .tile{min-height:76px;padding:9px;border-radius:11px}.tile .ico{width:27px;height:27px;font-size:16px;border-radius:8px;margin-bottom:5px}
+ .tile strong{font-size:11px;line-height:1.2}.tile small{font-size:9px;line-height:1.2;margin-top:3px}.tile .tile-stat{font-size:13px;margin-top:4px}.tile .tile-stat em{font-size:8px}
+ .small-grid .tile{min-height:72px;padding:8px}.small-grid .ico{width:24px;height:24px;font-size:14px;margin-bottom:4px}.small-grid .tile strong{font-size:10px}.small-grid .tile small{font-size:8px}
+ .panel{top:50%;left:50%;width:calc(100vw - 4mm);max-height:calc(100dvh - 20mm);padding:12px;border-radius:13px}.panel-head{top:-12px;padding-bottom:9px;margin-bottom:10px}.panel-head h2{font-size:16px}.close{padding:8px 10px}
+ .cards{gap:7px}.metric{padding:10px}.metric strong{font-size:16px}
+ .actions .btn{flex:1 1 auto;min-height:42px}.table-wrap table{font-size:11px}
+}
+@media(max-width:380px){.tile small{display:none}.small-grid .tile small{display:none}.tile{min-height:70px}.small-grid .tile{min-height:66px}.welcome p{max-width:180px}}
+@media(max-height:700px) and (max-width:600px){main{padding-top:5px}.section-title{margin:6px 0 4px}.tile{min-height:68px}.small-grid .tile{min-height:64px}.tile small{display:none}.small-grid .tile small{display:none}}
+
+/* Content-sized pop-ups: keep the same top/side placement and Back-stack behaviour,
+   but let each panel use only the height its content needs. Longer history grows
+   with its records and becomes internally scrollable only when it reaches the limit. */
+.panel.show{height:auto;min-height:0;max-height:calc(100dvh - max(20mm,env(safe-area-inset-top) + env(safe-area-inset-bottom)));bottom:auto;border-radius:16px 16px 16px 16px}
+#panelBody{flex:0 1 auto;min-height:0;max-height:calc(100dvh - 20mm - 88px);overflow-y:auto}
+#panelMsg{flex:0 0 auto}
+.panel-head{position:relative;top:auto}
+@media(max-width:600px){
+ .panel.show{height:auto;max-height:calc(100dvh - max(20mm,env(safe-area-inset-top) + env(safe-area-inset-bottom)));bottom:auto;border-radius:13px}
+ #panelBody{max-height:calc(100dvh - 20mm - 78px)}
+}
+
+/* Final phone-screen spacing: keep the existing pop-up rules untouched. */
+#app{min-height:100dvh;display:flex;flex-direction:column}
+#app>main{flex:1;min-height:0;display:flex;flex-direction:column}
+.grid{grid-auto-rows:minmax(100px,auto)}
+.small-grid{flex:1;grid-auto-rows:minmax(88px,1fr);align-content:stretch}
+.tile{min-height:100px;padding:13px 12px}
+.tile .ico{width:35px;height:35px;font-size:19px;margin-bottom:8px}
+.small-grid .tile{height:100%;min-height:88px;padding:11px 9px}
+.small-grid .ico{width:30px;height:30px;font-size:17px;margin-bottom:7px}
+@media(max-width:600px){
+ main{padding:8px 9px 12px}
+ .welcome{margin:4px 0 9px}
+ .section-title{margin:10px 0 7px}
+ .grid{gap:9px;grid-auto-rows:minmax(98px,auto)}
+ .small-grid{gap:9px;grid-auto-rows:minmax(86px,1fr)}
+ .tile{min-height:98px;padding:11px 10px}
+ .tile .ico{width:33px;height:33px;font-size:18px;margin-bottom:7px}
+ .tile strong{font-size:11px;line-height:1.25}
+ .tile small{font-size:9px;line-height:1.25;margin-top:4px}
+ .small-grid .tile{min-height:86px;padding:10px 8px}
+ .small-grid .ico{width:29px;height:29px;font-size:16px;margin-bottom:6px}
+ .small-grid .tile strong{font-size:10px;line-height:1.2}
+ .small-grid .tile small{font-size:8px;line-height:1.2}
+}
+@media(max-height:700px) and (max-width:600px){
+ .tile{min-height:88px}
+ .small-grid{grid-auto-rows:minmax(78px,1fr)}
+ .small-grid .tile{min-height:78px}
+ .tile small,.small-grid .tile small{display:block}
+}
+
+.mini-modal{display:none;position:fixed;inset:0;z-index:60;background:#10243a88;align-items:center;justify-content:center;padding:10mm 2mm}
+.mini-modal.show{display:flex}
+.mini-dialog{width:min(96vw,430px);max-height:calc(100dvh - 20mm);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 12px 40px #10243a35}
+.mini-dialog h3{margin:0 0 14px;color:var(--navy);font-size:17px}
+.student-table-wrap{width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px}
+.student-table{min-width:850px;width:100%;border-collapse:collapse;font-size:12px}
+.student-table th,.student-table td{white-space:nowrap;padding:9px 8px;border-bottom:1px solid #edf0f4;vertical-align:middle}
+.student-table th{position:sticky;top:0;background:#f7f9fc;z-index:1}
+.student-name{font-weight:800;color:var(--navy);white-space:normal;min-width:140px}
+.student-meta{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:3px}
+.student-balance{font-weight:900;font-size:14px;color:#172b43}
+.student-table .btn{padding:7px 9px;font-size:11px}
+.student-controls{display:grid;grid-template-columns:1fr;gap:9px}
+.student-controls>.btn,.student-controls>.field{width:100%;margin:0}
+
+#printRoot{display:none}
+@media print{@page{size:auto;margin:12mm}html,body{height:auto!important;overflow:visible!important;background:#fff!important}body>*:not(#printRoot){display:none!important}#printRoot{display:block!important;position:static!important;width:100%!important;padding:0!important;margin:0!important;color:#111!important;background:#fff!important;font-family:Arial,sans-serif}#printRoot h1{text-align:center;font-size:19px;margin:0 0 8px}#printRoot .print-meta{font-size:11px;margin:8px 0 14px}#printRoot .table-wrap{overflow:visible!important}#printRoot table{width:100%!important;border-collapse:collapse;min-width:0!important;font-size:10px;table-layout:auto}#printRoot th,#printRoot td{border:1px solid #888;padding:6px;text-align:left;color:#111!important;white-space:normal!important;overflow-wrap:anywhere}#printRoot th{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}#printRoot tr{break-inside:avoid;page-break-inside:avoid}}
+
+</style>
+</head>
+<body>
+<section id="loginScreen">
+ <div class="login-card">
+  <div class="logo">M</div><h1>MSPS</h1><p>Secure warden sign in</p>
+  <form id="loginForm">
+   <div class="field"><label>Warden email</label><input id="email" type="email" required autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Email address"></div>
+   <div class="field"><label>Password</label><input id="password" type="password" required autocomplete="current-password" placeholder="Password"></div>
+   <button class="btn" style="width:100%;margin-top:8px" id="loginBtn">Sign in</button>
+  </form><div id="loginMsg" class="msg"></div>
+ </div>
+</section>
+<div id="app" class="hidden">
+<header><div><div class="brand">MSPS</div><div class="subbrand">WARDEN CONTROL PANEL</div></div><div class="header-right"><div id="who" class="who"></div><button class="logout" id="logout">Sign out</button></div></header>
+<main>
+ <div class="welcome"><div><h1>Dashboard</h1><p>Manage students, events and hostel funds.</p></div><button class="btn secondary" id="refresh">↻ Refresh</button></div>
+ <div class="section-title">Main dashboard</div>
+ <div class="grid">
+  <button class="tile" data-panel="students"><div class="ico">♙</div><strong>Registered Students</strong><small>Add, search, transact and view statements</small><span class="tile-stat" id="studentCountStat">—<em>Registered students</em></span></button>
+  <button class="tile" data-panel="fund"><div class="ico">₹</div><strong>Total Balance Held</strong><small>Current fund and accounting breakdown</small><span class="tile-stat" id="fundTotalStat">—<em>Current total held</em></span></button>
+  <button class="tile" data-panel="deposits"><div class="ico">↓</div><strong>Deposits</strong><small>Daily and historical deposit records</small><span class="tile-stat" id="depositTotalStat">—<em>Today's deposits</em></span></button>
+  <button class="tile" data-panel="withdrawals"><div class="ico">↑</div><strong>Withdrawals</strong><small>Daily and historical withdrawal records</small><span class="tile-stat" id="withdrawalTotalStat">—<em>Today's withdrawals</em></span></button>
+ </div>
+ <div class="section-title">Additional features</div>
+ <div class="small-grid">
+  <button class="tile" data-panel="addEvent"><div class="ico">＋</div><strong>Add Event</strong><small>Create an event</small></button>
+  <button class="tile" data-panel="contribution"><div class="ico">◎</div><strong>Event Contribution</strong><small>Registered and manual contributions</small></button>
+  <button class="tile" data-panel="events"><div class="ico">▤</div><strong>Event Management</strong><small>Reports and handovers</small></button>
+  <button class="tile" data-panel="email"><div class="ico">✉</div><strong>Email</strong><small>Daily report data for email workflow</small></button>
+  <button class="tile" data-panel="backup"><div class="ico">▣</div><strong>Backup</strong><small>Export current MSPS data</small></button>
+  <button class="tile" data-panel="transfer"><div class="ico">⇄</div><strong>Student Transfer</strong><small>Student-to-student fund transfer</small></button>
+  <button class="tile" data-panel="borrowing"><div class="ico">↗</div><strong>Borrow</strong><small>Borrowing history</small></button>
+  <button class="tile" data-panel="warden"><div class="ico">▥</div><strong>Warden Utilization & Repayment</strong><small>Record utilization and repayment</small></button>
+  <button class="tile" data-panel="outstanding"><div class="ico">◷</div><strong>Warden Outstanding Amount</strong><small>Outstanding and repayment history</small></button>
+ </div>
+ <section id="panel" class="panel"><div class="panel-head"><h2 id="panelTitle">Panel</h2><button class="close" id="closePanel">Close ✕</button></div><div id="panelMsg" class="msg"></div><div id="panelBody"></div></section>
+</main></div>
+<script>
+(() => {
+const URL="https://phhwrfqlswvhfsdymnin.supabase.co";
+const KEY="sb_publishable_WmTdaMTqr5AKzPMOZYADaA_pUASFYnO";
+const sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:true,detectSessionInUrl:false}});
+let students=[],events=[],activePanel="",cachedDashboard=null;
+const $=id=>document.getElementById(id);
+const money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+function msg(el,text,type="ok"){el.textContent=text;el.className="msg "+type}
+function clearMsg(el){el.textContent="";el.className="msg"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function today(){const d=new Date();return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).format(d)}
+async function invoke(fn,body){
+ const {data,error}=await sb.functions.invoke(fn,{body});
+ if(error){let m=error.message||"Request failed";try{const j=await error.context.json();m=j.error||m}catch(_){}throw new Error(m)}
+ if(data?.success===false)throw new Error(data.error||"Request failed");
+ return data?.data!==undefined?data.data:data;
+}
+async function api(body){return invoke("amu-api",body)}
+async function reports(body){return invoke("amu-reports",body)}
+function pinPrompt(){const p=prompt("Enter your Common PIN to authorize this financial transaction:");if(p===null)return null;if(!/^\d{4,12}$/.test(p)){alert("PIN must contain 4–12 digits.");return null}return p}
+const panelStack=[];let panelHistoryActive=false;let pendingRestorePayload=null;
+function showPanel(key,title,html){
+ const panel=$("panel");
+ if(panel.classList.contains("show")){
+  const oldTitle=$("panelTitle").textContent;
+  if(key!==activePanel||title!==oldTitle){panelStack.push({key:activePanel,title:oldTitle,html:$("panelBody").innerHTML,message:$("panelMsg").textContent,messageClass:$("panelMsg").className});history.pushState({amuPanel:true},"",location.pathname+location.search+"#amu-panel");}
+ }else{panelHistoryActive=true;history.pushState({amuPanel:true},"",location.pathname+location.search+"#amu-panel");}
+ document.querySelectorAll(".mini-modal").forEach(modal=>modal.remove());
+ activePanel=key;$("panelTitle").textContent=title;$("panelBody").innerHTML=html;panel.classList.add("show");clearMsg($("panelMsg"));panel.scrollTop=0
+}
+function restorePanel(snapshot){activePanel=snapshot.key;$("panelTitle").textContent=snapshot.title;$("panelBody").innerHTML=snapshot.html;$("panelMsg").textContent=snapshot.message;$("panelMsg").className=snapshot.messageClass;$("panel").scrollTop=0}
+function openMiniModal(modal){
+ if(!modal||modal.classList.contains("show"))return;
+ modal.classList.add("show");
+ history.pushState({amuMiniModal:true},"",location.pathname+location.search+location.hash);
+}
+function closeMiniModal(modal){
+ if(!modal||!modal.classList.contains("show"))return;
+ if(history.state&&history.state.amuMiniModal){history.back();}
+ else{modal.classList.remove("show");}
+}
+window.addEventListener("popstate",()=>{
+ const openMini=[...document.querySelectorAll(".mini-modal.show")].pop();
+ if(openMini){openMini.classList.remove("show");return;}
+ if(panelStack.length){restorePanel(panelStack.pop());return;}
+ if($("panel").classList.contains("show")){$("panel").classList.remove("show");activePanel="";panelHistoryActive=false;}
+});
+function closeTopPanel(){if($("panel").classList.contains("show")){history.back();}}
+
+function downloadTextFile(filename,content,mime){
+ const blob=new Blob([content],{type:mime});
+ let href="data:"+mime+";charset=utf-8,"+encodeURIComponent(content),objectUrl=null;
+ try{if(window.URL&&typeof window.URL.createObjectURL==="function"){objectUrl=window.URL.createObjectURL(blob);href=objectUrl}}catch(_){ }
+ const a=document.createElement("a");a.href=href;a.download=filename;a.style.display="none";document.body.appendChild(a);
+ try{a.click()}finally{a.remove();if(objectUrl&&window.URL&&typeof window.URL.revokeObjectURL==="function")setTimeout(()=>window.URL.revokeObjectURL(objectUrl),1500)}
+}
+function csvField(value){const text=String(value??"");return '"'+text.replace(/"/g,'""')+'"'}
+function downloadCurrentBalances(){
+ const rows=balanceRows();
+ const lines=[["Student","Student ID","Class","Current Balance (INR)"],...rows.map(r=>[r.name,r.student_code,r.class,Number(r.current_balance||0).toFixed(2)])];
+ const csv="\uFEFF"+lines.map(row=>row.map(csvField).join(",")).join("\r\n");
+ downloadTextFile("MSPS_Current_Balances_"+today()+".csv",csv,"text/csv");
+ msg($("panelMsg"),"Current balances CSV download started. Check your Downloads folder.","ok");
+}
+
+function printReport(title,content){
+ let root=$("printRoot");if(!root){root=document.createElement("section");root.id="printRoot";document.body.appendChild(root)}
+ root.innerHTML=`<h1>${esc(title)}</h1><div class="print-meta">MSPS · Generated ${new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})} (IST)</div>${content}`;
+ // Keep the prepared report in the DOM until the next print. Android's native
+ // PrintManager captures the WebView asynchronously after this call.
+ setTimeout(()=>{try{if(window.AMUAndroidPrint&&typeof window.AMUAndroidPrint.print==="function"){window.AMUAndroidPrint.print()}else{window.print()}}catch(e){msg($("panelMsg"),"Printing is not available here. Open the website in Chrome and choose Print.","err")}},180);
+}
+function printCurrentReport(title,elementId){const el=$(elementId);if(!el){msg($("panelMsg"),"There is no report to print yet.","err");return}printReport(title,el.innerHTML)}
+
+function btn(label,fn,cls="btn"){return `<button class="${cls}" type="button" data-action="${fn}">${label}</button>`}
+function studentSelect(id="studentSelect"){return `<select id="${id}" required><option value="">Select student</option>${students.map(s=>`<option value="${esc(s.student_id)}">${esc(s.name)} — ${esc(s.student_code)} (${money(s.current_balance)})</option>`).join("")}</select>`}
+function eventSelect(id="eventSelect"){return `<select id="${id}" required><option value="">Select event</option>${events.map(e=>`<option value="${esc(e.event_id)}">${esc(e.event_name)} — Remaining ${money(e.remaining_event_fund)}</option>`).join("")}</select>`}
+function field(label,id,placeholder="",type="text"){return `<div class="field"><label>${label}</label><input id="${id}" type="${type}" placeholder="${placeholder}" ${type==="number"?'min="0.01" step="0.01"':''} required></div>`}
+async function loadBase(){
+ const date=today();
+ const [s,e,d,dep,wd]=await Promise.all([api({action:"list_students"}),api({action:"list_events"}),reports({action:"dashboard"}),reports({action:"deposits",date}),reports({action:"withdrawals",date})]);
+ students=Array.isArray(s)?s:(s?.students||[]);
+ events=Array.isArray(e)?e:(e?.events||[]);
+ cachedDashboard=d;
+ const held=d?.total_fund?.total_balance_held ?? d?.total_fund?.total_held ?? 0;
+ $("studentCountStat").innerHTML=`${students.length}<em>Registered students</em>`;
+ $("fundTotalStat").innerHTML=`${money(held)}<em>Current total held</em>`;
+ $("depositTotalStat").innerHTML=`${money(dep?.total||0)}<em>Today's deposits</em>`;
+ $("withdrawalTotalStat").innerHTML=`${money(wd?.total||0)}<em>Today's withdrawals</em>`;
+}
+async function refresh(){try{await loadBase();if(activePanel)openPanel(activePanel);else showDashboardMetrics()}catch(e){alert("Refresh failed: "+e.message)}}
+function showDashboardMetrics(){ /* Live figures are displayed inside the four main dashboard icons. */ }
+async function openPanel(key){
+ try{
+  if(!students.length||!events.length)await loadBase();
+  if(key==="students")return studentsPanel();
+  if(key==="fund"){
+   showPanel(key,"Total Balance Held",`<div class="actions"><button class="btn secondary" id="printFundHistory" type="button" disabled>Print complete report</button></div><div id="fundReportPrintable"><div class="notice">Loading balance figures and transaction history…</div></div>`);
+   const panelToken=Date.now();window.__mspsFundRequest=panelToken;
+   const results=await Promise.allSettled([reports({action:"dashboard"}),reports({action:"fund_history"})]);
+   if(activePanel!=="fund"||window.__mspsFundRequest!==panelToken||!( $("fundReportPrintable") ))return;
+   if(results[0].status!=="fulfilled")throw results[0].reason;
+   const d=results[0].value,f=d.total_fund||{},o=d.warden_outstanding||{};
+   let historyHtml="<div class=notice>All-time history could not be loaded from the reports service.</div>";
+   if(results[1].status==="fulfilled"){
+    const b=results[1].value||{},tx=b.student_transactions||[],ev=b.event_contributions||[],wh=b.event_handovers||[],wt=b.warden_transactions||[],studentMap=new Map((b.students||[]).map(x=>[x.id,x.name])),eventMap=new Map((b.events||[]).map(x=>[x.id,x.event_name])),wardenMap=new Map((b.wardens||[]).map(x=>[x.id,x.warden_name]));
+    const eventOnly=ev.filter(x=>!x.student_transaction_id);
+    const transferGroups=new Map();const ordinary=[];
+    tx.forEach(x=>{if(x.transfer_id){const group=transferGroups.get(x.transfer_id)||[];group.push(x);transferGroups.set(x.transfer_id,group)}else ordinary.push(x)});
+    const transferRows=[...transferGroups.values()].map(group=>{const debit=group.find(x=>x.transaction_type==="transfer_out")||group[0],credit=group.find(x=>x.transaction_type==="transfer_in")||group.find(x=>x!==debit);return {...debit,history_type:"Student transfer",person:studentMap.get(debit.student_id)||"Student",description:credit?`${studentMap.get(debit.student_id)||"Sender"} → ${studentMap.get(credit.student_id)||"Receiver"}`:(debit.description||"Transfer"),amount:Math.abs(Number(debit.amount||0))}});
+    const all=[...ordinary.map(x=>({...x,history_type:x.event_id?"Registered event contribution":(x.transaction_type||"Student transaction"),person:studentMap.get(x.student_id)||"Student",event_name:eventMap.get(x.event_id)||""})),...transferRows,...eventOnly.map(x=>({...x,history_type:x.contribution_source||"Manual event contribution",person:x.contributor_name||studentMap.get(x.student_id)||"Contributor",event_name:eventMap.get(x.event_id)||""})),...wh.map(x=>({...x,history_type:"Event handover",person:x.recipient_name||"Recipient",event_name:eventMap.get(x.event_id)||""})),...wt.map(x=>({...x,history_type:`Warden ${x.transaction_type||"transaction"}`,person:wardenMap.get(x.recorded_by)||"Warden"}))].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+    historyHtml=all.length?`<h3 style="margin-top:20px">Complete Transaction History</h3><div class="table-wrap"><table><thead><tr><th>Date/time</th><th>Type</th><th>Name</th><th>Event / Description</th><th>Amount</th><th>Reference</th></tr></thead><tbody>${all.map(x=>`<tr><td>${x.created_at?new Date(x.created_at).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})+" IST":"—"}</td><td>${esc(x.history_type)}</td><td>${esc(x.person)}</td><td>${esc([x.event_name,x.description].filter(Boolean).join(" · ")||"—")}</td><td>${money(Math.abs(Number(x.amount||0)))}</td><td>${esc(x.id||"—")}</td></tr>`).join("")}</tbody></table></div>`:"<div class=empty>No historical transactions found.</div>";
+   }else{historyHtml=`<div class="notice">All-time history is unavailable: ${esc(results[1].reason?.message||"Report service error")}. Balance figures are still available.</div>`}
+   $("fundReportPrintable").innerHTML=`<div class="table-wrap"><table style="min-width:0"><tbody><tr><th>Total Balance Held</th><td><b>${money(f.total_balance_held)}</b></td></tr><tr><th>Total Student Balances</th><td>${money(f.total_student_balances)}</td></tr><tr><th>Remaining Event Funds</th><td>${money(f.remaining_event_funds)}</td></tr><tr><th>Outstanding Warden Utilization</th><td>${money(o.outstanding_amount)}</td></tr></tbody></table></div><div class="notice">Formula: student balances + remaining event funds − outstanding warden utilization.</div><div id="fundHistoryPrintable">${historyHtml}</div>`;
+   const printButton=$("printFundHistory");if(printButton)printButton.disabled=false;
+   return;
+  }
+  if(key==="deposits"||key==="withdrawals"||key==="borrowing")return historyPanel(key);
+  if(key==="addEvent")return showPanel(key,"Add Event",`<form id="eventForm">${field("Event name","eventName","Enter event name")}<div class="field"><label>Description</label><textarea id="eventDesc"></textarea></div><button class="btn">Save Event</button></form>`);
+  if(key==="contribution")return contributionPanel();
+  if(key==="events")return eventsPanel();
+  if(key==="email")return emailPanel();
+  if(key==="backup")return backupPanel();
+  if(key==="transfer")return showPanel(key,"Student-to-Student Transfer",`<form id="transferForm"><div class="field"><label>Sender</label>${studentSelect("transferSender")}</div><div class="field"><label>Receiver</label>${studentSelect("transferReceiver")}</div>${field("Amount (₹)","transferAmount","Enter amount","number")}<div class="field"><label>Note (optional)</label><input id="transferDescription" placeholder="Reason or note"></div><div class="field"><label>Common PIN</label><input id="transferPin" type="password" inputmode="numeric" required></div><button class="btn">Confirm Transfer</button></form><div class="notice">A successful transfer creates matching debit and credit entries atomically. The sender must have sufficient available balance.</div>`);
+  if(key==="warden")return wardenPanel();
+  if(key==="outstanding")return outstandingPanel();
+ }catch(e){showPanel(key,"Unable to load",`<div class="notice">${esc(e.message)}</div>`)}
+}
+function metric(label,value){return `<div class="metric"><span>${label}</span><strong>${money(value)}</strong></div>`}
+function studentsPanel(){
+ showPanel("students","Registered Students",`<div class="student-controls"><button class="btn" type="button" id="toggleAddStudent">＋ Add Student</button><div class="field"><label>Search students</label><input id="studentSearch" placeholder="Search name, ID or class"></div></div><h3 style="font-size:15px;margin:16px 0 8px;color:var(--navy)">Registered Students</h3><div id="studentTable"></div><div id="studentAddModal" class="mini-modal" aria-hidden="true"><div class="mini-dialog" role="dialog" aria-modal="true" aria-labelledby="studentAddTitle"><h3 id="studentAddTitle">Add Student</h3><form id="studentForm">${field("Student name","studentName","Full name")} ${field("Class","studentClass","Class / batch")} ${field("Unique Student ID","studentCode","Unique ID")}<div class="actions"><button class="btn" type="submit">Save Student</button><button class="btn secondary" type="button" id="cancelAddStudent">Cancel</button></div></form></div></div>`);
+ const modal=$("studentAddModal");document.body.appendChild(modal);
+ $("toggleAddStudent").addEventListener("click",()=>openMiniModal(modal));
+ $("cancelAddStudent").addEventListener("click",()=>closeMiniModal(modal));
+ $("studentForm").addEventListener("submit",async e=>{e.preventDefault();const save=e.target.querySelector('button[type="submit"]');save.disabled=true;save.textContent="Saving…";try{await api({action:"add_student",student_code:$("studentCode").value.trim(),name:$("studentName").value.trim(),class:$("studentClass").value.trim()});await loadBase();studentsPanel();msg($("panelMsg"),"Student saved successfully.","ok")}catch(err){msg($("panelMsg"),err.message,"err");save.disabled=false;save.textContent="Save Student"}});
+ renderStudentTable();
+}
+function renderStudentTable(){
+ const q=($("studentSearch")?.value||"").toLowerCase();
+ const rows=students.filter(s=>[s.name,s.student_code,s.class].some(x=>String(x||"").toLowerCase().includes(q)));
+ const headers="<thead><tr><th>Name</th><th>Current Balance</th><th>Deposit</th><th>Withdraw</th><th>Borrow</th><th>Edit</th><th>Statement</th></tr></thead>";
+ const body=rows.map(s=>`<tr><td class="student-name">${esc(s.name)}<span class="student-meta">${esc(s.class||"—")} · ID: ${esc(s.student_code)}</span></td><td class="student-balance">${money(s.current_balance)}</td><td>${btn("Deposit",`txn:${s.student_id}:deposit`)}</td><td>${btn("Withdraw",`txn:${s.student_id}:withdrawal`,"btn secondary")}</td><td>${btn("Borrow",`txn:${s.student_id}:borrowing`,"btn secondary")}</td><td>${btn("Edit",`edit:${s.student_id}`,"btn secondary")}</td><td>${btn("Statement",`statement:${s.student_id}`,"btn secondary")}</td></tr>`).join("");
+ $("studentTable").innerHTML=rows.length?`<div class="student-table-wrap" aria-label="Registered students table; swipe horizontally to see all columns"><table class="student-table">${headers}<tbody>${body}</tbody></table></div><p class="muted">Swipe left or right to view all columns.</p>`:`<div class="empty">No students found.</div>`;
+}
+let statementRequestSerial=0;
+async function loadStudentStatement(studentId,requestSerial,student){
+ try{
+  const d=await reports({action:"student_statement",student_id:studentId});
+  if(activePanel!=="students"||window.__mspsStatementRequest!==requestSerial||!( $("studentStatementPrintable") ))return;
+  const t=d.transactions||[],name=d.student?.name||student?.name||"Student";
+  $("panelTitle").textContent=`Statement: ${name}`;
+  $("studentStatementPrintable").innerHTML=`<div class="metric"><span>Current balance</span><strong>${money(d.current_balance?.current_balance??student?.current_balance)}</strong></div><p><b>Student:</b> ${esc(name)} &nbsp; <b>ID:</b> ${esc(d.student?.student_code||student?.student_code||"")} &nbsp; <b>Class:</b> ${esc(d.student?.class||student?.class||"")}</p>${t.length?`<div class="table-wrap"><table><thead><tr><th>Date/time</th><th>Type</th><th>Amount</th><th>Description</th></tr></thead><tbody>${t.map(x=>`<tr><td>${x.created_at?new Date(x.created_at).toLocaleString("en-IN"):"—"}</td><td>${esc(x.transaction_type||"")}</td><td>${money(x.amount)}</td><td>${esc(x.description||"")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No transactions found for this student.</div>`}`;
+  const b=$("printStudentStatement");if(b)b.disabled=false;
+ }catch(err){
+  if(activePanel==="students"&&window.__mspsStatementRequest===requestSerial){const target=$("studentStatementPrintable");if(target)target.innerHTML=`<div class="notice">Unable to load statement: ${esc(err.message)}</div>`;const b=$("printStudentStatement");if(b)b.disabled=true;}
+ }
+}
+async function historyPanel(key){
+ const title=key==="deposits"?"Deposits":key==="withdrawals"?"Withdrawals":"Borrowing History";
+ showPanel(key,title,`<div class="row"><div class="field"><label>Date (India time)</label><input id="historyDate" type="date" value="${today()}"></div></div><div class="actions"><button class="btn" id="loadHistory">Load records</button><button class="btn secondary" id="printHistory">Print report</button></div><div id="historyResult"></div>`);
+ await loadHistory(key);
+}
+async function loadHistory(key){
+ const date=$("historyDate").value;const action=key==="deposits"?"deposits":key==="withdrawals"?"withdrawals":"borrowing";
+ const d=await reports({action,date});const list=d.transactions||[];
+ $("historyResult").innerHTML=`<div class="metric" style="margin-top:12px"><span>Total ${action} on ${esc(date)}</span><strong>${money(d.total)}</strong></div>${list.length?`<div class="table-wrap"><table><thead><tr><th>Time</th><th>Student</th><th>Amount</th><th>Reference</th></tr></thead><tbody>${list.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString("en-IN")}</td><td>${esc(x.student?.name||x.student_id)}<br>${esc(x.student?.student_code||"")}</td><td>${money(x.amount)}</td><td>${esc(x.id||"—")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No records for this date.</div>`}`;
+}
+async function contributionPanel(){
+ showPanel("contribution","Event Contribution",`${eventSelect("registeredEventSelect")}<h3 style="font-size:15px;margin-top:18px">Registered Student Contribution</h3><form id="registeredContributionForm"><div class="field"><label>Search registered students to select (multiple selection allowed)</label><input id="contributionStudentSearch" type="search" autocomplete="off" placeholder="Type student name or ID to show matching students" style="margin-bottom:8px"><div id="contributionStudentCount" class="muted" style="margin:0 0 7px">No students displayed. Search by name or student ID to find students.</div><div id="contributionStudentList" style="max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:8px">${students.map(st=>`<label class="student-choice" style="display:none;align-items:center;gap:9px;padding:7px;border-bottom:1px solid #edf0f4;font-weight:500"><input type="checkbox" value="${esc(st.student_id)}" style="width:auto"> <span>${esc(st.name)} · ${esc(st.student_code)} · Balance ${money(st.current_balance)}</span></label>`).join("")}</div></div><div class="field"><label>Contribution amount per selected student (₹)</label><input id="registeredContributionAmount" type="number" min="0.01" step="0.01" required></div><div class="field"><label>Note (optional)</label><input id="registeredContributionDescription" placeholder="Reason or note"></div><div class="field"><label>Common PIN</label><input id="registeredContributionPin" type="password" inputmode="numeric" required></div><button class="btn">Confirm Registered Contributions</button></form><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3 style="font-size:15px">Manual Contribution</h3><form id="manualForm">${eventSelect()}<div class="row">${field("Contributor name","contributorName","Name of contributor")}${field("Amount (₹)","contributionAmount","Amount","number")}</div><div class="field"><label>Common PIN</label><input id="contributionPin" type="password" inputmode="numeric" required></div><button class="btn">Save Manual Contribution</button></form>`);
+}
+async function eventsPanel(){
+ const es=await api({action:"list_events"});events=Array.isArray(es)?es:(es?.events||[]);
+ showPanel("events","Event Management",events.length?`<div class="notice">Grand total below is historical gross contributions. Handovers reduce remaining event funds, not historical collected totals.</div>${events.map(e=>`<div class="metric" style="margin:10px 0"><b>${esc(e.event_name)}</b><span>${esc(e.description||"")}</span><strong>${money(e.total_contributions)}</strong><span>Remaining: ${money(e.remaining_event_fund)} · Handed over: ${money(e.total_handed_over)}</span><div class="actions">${btn("View report",`eventreport:${e.event_id}`)}${btn("Record handover",`handover:${e.event_id}`,"btn secondary")}</div></div>`).join("")}`:`<div class="empty">No events have been created.</div>`);
+}
+async function eventReport(id){
+ const d=await reports({action:"event_report",event_id:id});const c=d.contributions||[],h=d.handovers||[],s=d.summary||{};
+ showPanel("events",`Event report: ${d.event.event_name}`,`<div class="actions"><button class="btn secondary" id="printEventReport" type="button">Print event report</button></div><div id="eventReportPrintable"><div class="table-wrap"><table style="min-width:0"><tbody><tr><th>Collected</th><td>${money(s.total_contributions)}</td></tr><tr><th>Registered contributions</th><td>${money(s.registered_total)}</td></tr><tr><th>Manual contributions</th><td>${money(s.manual_total)}</td></tr><tr><th>Remaining fund</th><td>${money(s.remaining_event_fund)}</td></tr></tbody></table></div><h3>Contributors</h3>${c.length?`<div class="table-wrap"><table><thead><tr><th>Date/time</th><th>Contributor</th><th>Source</th><th>Amount</th></tr></thead><tbody>${c.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString("en-IN")}</td><td>${esc(x.student?.name||x.contributor_name)}<br>${esc(x.student?.student_code||"")}</td><td>${esc(x.contribution_source)}</td><td>${money(x.amount)}</td></tr>`).join("")}</tbody></table></div>`:"<div class=empty>No contributions yet.</div>"}<h3>Handovers</h3>${h.length?`<div class="table-wrap"><table><thead><tr><th>Date/time</th><th>Recipient</th><th>Amount</th><th>Description</th></tr></thead><tbody>${h.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString("en-IN")}</td><td>${esc(x.recipient_name||"—")}</td><td>${money(x.amount)}</td><td>${esc(x.description||"")}</td></tr>`).join("")}</tbody></table></div>`:"<div class=empty>No handovers yet.</div>"}</div>`);
+}
+function formatEmailStatus(value){if(!value)return "Not sent yet";const d=new Date(value);return Number.isNaN(d.getTime())?String(value):d.toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Kolkata"})+" (IST)"}
+async function refreshEmailStatus(){const box1=$("lastDailyReport"),box2=$("lastBackupEmail");if(!box1||!box2)return;box1.textContent="Checking…";box2.textContent="Checking…";try{const result=await invoke("amu-email-bridge",{action:"status"});const status=result.status||{};box1.textContent=formatEmailStatus(status.lastDailyReportSent);box2.textContent=formatEmailStatus(status.lastBackupSent)}catch(err){box1.textContent="Status unavailable";box2.textContent="Status unavailable";msg($("panelMsg"),"Could not load email status: "+err.message,"err")}}
+function emailPanel(){showPanel("email","Email",`<div class="metric" style="margin-bottom:10px"><span>Last Daily Report Sent</span><strong id="lastDailyReport" style="font-size:15px">Checking…</strong></div><div class="metric" style="margin-bottom:14px"><span>Last Backup Sent</span><strong id="lastBackupEmail" style="font-size:15px">Checking…</strong></div><div class="actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px"><button class="btn" id="sendDailyEmail" type="button">Send Daily Report</button><button class="btn secondary" id="sendBackupEmail" type="button">Send Backup</button></div><button class="btn secondary" id="changeCommonPin" type="button" style="width:100%;margin:4px 0 10px">Change Common PIN</button><p class="muted">Each button sends only its own email. Automatic daily emails at 8 PM continue independently.</p><button class="btn secondary" id="refreshEmailStatus" type="button">Refresh Status</button><div id="pinModal" class="mini-modal" aria-hidden="true"><div class="mini-dialog" role="dialog" aria-modal="true" aria-labelledby="pinModalTitle"><h3 id="pinModalTitle">Change Common PIN</h3><form id="changePinForm"><div class="field"><label>Current Common PIN</label><input id="currentCommonPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" maxlength="12" required autocomplete="current-password"></div><div class="field"><label>New Common PIN</label><input id="newCommonPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" maxlength="12" required autocomplete="new-password"></div><div class="field"><label>Confirm New Common PIN</label><input id="confirmCommonPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" maxlength="12" required autocomplete="new-password"></div><div class="actions"><button class="btn" type="submit">Save PIN</button><button class="btn secondary" id="cancelChangePin" type="button">Cancel</button></div></form></div></div>`);const modal=$("pinModal");document.body.appendChild(modal);$("changeCommonPin").addEventListener("click",()=>openMiniModal(modal));$("cancelChangePin").addEventListener("click",()=>closeMiniModal(modal));$("changePinForm").addEventListener("submit",async e=>{e.preventDefault();const currentPin=$("currentCommonPin").value.trim(),newPin=$("newCommonPin").value.trim(),confirmPin=$("confirmCommonPin").value.trim();if(!/^\d{4,12}$/.test(currentPin)||!/^\d{4,12}$/.test(newPin)){msg($("panelMsg"),"PINs must contain 4–12 digits.","err");return}if(newPin!==confirmPin){msg($("panelMsg"),"New PIN and confirmation do not match.","err");return}if(currentPin===newPin){msg($("panelMsg"),"New PIN must be different from the current PIN.","err");return}const save=e.target.querySelector('button[type="submit"]');save.disabled=true;save.textContent="Saving…";try{await api({action:"set_common_pin",current_pin:currentPin,pin:newPin});closeMiniModal(modal);e.target.reset();msg($("panelMsg"),"Common PIN changed successfully.","ok")}catch(err){msg($("panelMsg"),err.message,"err")}finally{save.disabled=false;save.textContent="Save PIN"}});refreshEmailStatus()}
+function backupPanel(){showPanel("backup","Backup & Restore",`<h3>Current Student Balances</h3><div class="actions"><button class="btn" id="printBalances" type="button">Print Current Balances</button></div><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>Complete Website Backup</h3><button class="btn" id="downloadBackup">Download Backup (JSON)</button><p class="muted">Includes student, event, contribution, handover, transaction and settings data. PIN/security credentials are excluded.</p><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>Validate Backup File</h3><div class="field"><label>Choose backup file from your phone</label><input id="restoreFile" type="file" accept=".json,application/json"></div><div class="actions"><button class="btn secondary" id="validateBackup" disabled>Validate Backup</button><button class="btn danger" id="restoreBackup" disabled aria-disabled="true">Replace with Backup</button></div><div id="restorePreview" class="notice">Choose a JSON backup file, then press Validate Backup. Validation does not change database data.</div><div class="notice" style="margin-top:10px">Restore uses exact REPLACEMENT mode: it replaces students, events, student transactions, event contributions, event handovers and warden transactions with the backup. It replaces only the system_name, currency and currency_symbol settings. Warden/login accounts, Common PIN/security settings and logs are not changed. The secure database restore function must be installed before restoring.</div>`)}
+
+function extractBackupTables(input){if(!input||typeof input!=="object"||Array.isArray(input))throw new Error("The JSON root must be an object.");let candidate=input.tables&&typeof input.tables==="object"?input.tables:(input.data&&typeof input.data==="object"?input.data:input);if(candidate.tables&&typeof candidate.tables==="object")candidate=candidate.tables;return candidate}
+function normalizeBackupPayload(input){const source=extractBackupTables(input);const required=["students","events","student_transactions","event_contributions","event_handovers","warden_transactions","system_settings"];const tables={};for(const key of required){const value=source[key];if(key==="system_settings"&&value&&typeof value==="object"&&!Array.isArray(value)){tables[key]=value;continue}if(!Array.isArray(value))throw new Error("Backup is missing a valid "+key+" section.");tables[key]=value}const record_counts=input.record_counts||Object.fromEntries(Object.entries(tables).map(([key,value])=>[key,Array.isArray(value)?value.length:Object.keys(value||{}).length]));return {backup_format:input.backup_format||"MSPS_BACKUP_V2",backup_version:input.backup_version||2,exported_at:input.exported_at||input.exportedAt||new Date().toISOString(),record_counts,tables:tables}}
+function balanceRows(){return students.map(s=>({name:s.name,student_code:s.student_code,class:s.class||"",current_balance:Number(s.current_balance||0)}))}
+async function wardenPanel(){
+ showPanel("warden","Warden Utilization & Repayment",`<form id="wardenForm"><div class="field"><label>Transaction type</label><select id="wardenType"><option value="utilization">Utilization</option><option value="repayment">Repayment</option></select></div><div class="row">${field("Amount (₹)","wardenAmount","Amount","number")}<div class="field"><label>Optional note</label><textarea id="wardenDescription" placeholder="Add a note (optional)"></textarea></div></div><div class="field"><label>Common PIN</label><input id="wardenPin" type="password" inputmode="numeric" required></div><button class="btn">Save transaction</button></form><div id="wardenSummary"></div>`);
+ const o=await reports({action:"dashboard"});const w=o.warden_outstanding||{};$("wardenSummary").innerHTML=`<div class="metric" style="margin-top:12px"><span>Current outstanding</span><strong>${money(w.outstanding_amount)}</strong><span>Total utilized ${money(w.total_utilization)} · Repaid ${money(w.total_repaid)}</span></div>`;
+}
+async function outstandingPanel(){
+ const d=await reports({action:"daily_report",date:today()});const rows=d.warden_transactions||[];
+ const o=(await reports({action:"dashboard"})).warden_outstanding||{};
+ showPanel("outstanding","Warden Outstanding Amount",`<div class="cards">${metric("Outstanding",o.outstanding_amount)}${metric("Total Utilization",o.total_utilization)}${metric("Total Repaid",o.total_repaid)}</div><div class="notice">The current report endpoint returns today's warden transactions only. Full all-time utilization and repayment history will be added to the reports function in the next backend update.</div><h3>Today's activity</h3>${rows.length?`<div class="table-wrap"><table><thead><tr><th>Time</th><th>Type</th><th>Amount</th><th>Description</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString("en-IN")}</td><td>${esc(x.transaction_type)}</td><td>${money(x.amount)}</td><td>${esc(x.description||"")}</td></tr>`).join("")}</tbody></table></div>`:"<div class=empty>No warden transactions today.</div>"}`);
+}
+document.addEventListener("click",async ev=>{
+ const tile=ev.target.closest("[data-panel]");if(tile){await openPanel(tile.dataset.panel);return}
+ const action=ev.target.closest("[data-action]")?.dataset.action;if(!action)return;
+ try{
+  if(action.startsWith("txn:")){const [,id,type]=action.split(":");const s=students.find(x=>x.student_id===id);const label=type==="deposit"?"Deposit":type==="withdrawal"?"Withdrawal":"Borrow";showPanel("students",`${label} — ${s?.name||"Student"}`,`<form id="studentTxnForm"><input type="hidden" id="txnStudentId" value="${esc(id)}"><input type="hidden" id="txnType" value="${esc(type)}"><div class="field"><label>Amount (₹)</label><input id="txnAmount" type="number" min="0.01" step="0.01" required placeholder="Enter amount"></div><div class="field"><label>Optional note</label><textarea id="txnDescription" placeholder="Add a note (optional)"></textarea></div><div class="field"><label>Common PIN</label><input id="txnPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" maxlength="12" required placeholder="Enter Common PIN"></div><div class="actions"><button class="btn" type="submit">Confirm ${label}</button><button class="btn secondary" type="button" id="cancelTxn">Cancel</button></div></form>`);return}
+  if(action.startsWith("edit:")){const id=action.split(":")[1];const s=students.find(x=>x.student_id===id);if(!s)throw new Error("Student not found.");showPanel("students",`Edit student: ${s.name}`,`<form id="editStudentForm"><input type="hidden" id="editStudentId" value="${esc(id)}"><div class="field"><label>Student name</label><input id="editStudentName" value="${esc(s.name)}" required></div><div class="field"><label>Class</label><input id="editStudentClass" value="${esc(s.class||"")}" required></div><div class="field"><label>Unique Student ID</label><input id="editStudentCode" value="${esc(s.student_code)}" required></div><div class="actions"><button class="btn" type="submit">Save changes</button><button class="btn secondary" type="button" id="cancelEdit">Cancel</button></div></form><div class="notice">Student profile editing updates only the student's name, class and unique ID. Financial history is not changed.</div>`);return}
+  if(action.startsWith("statement:")){const id=action.split(":")[1];const student=students.find(x=>x.student_id===id);if(!student)throw new Error("Student not found.");const requestSerial=++statementRequestSerial;window.__mspsStatementRequest=requestSerial;showPanel("students",`Statement: ${student.name}`,`<div class="actions"><button class="btn secondary" id="printStudentStatement" type="button" disabled>Print statement</button></div><div id="studentStatementPrintable"><div class="notice">Loading student statement…</div></div>`);loadStudentStatement(id,requestSerial,student);return}
+  if(action.startsWith("balance:")){const s=students.find(x=>x.student_id===action.split(":")[1]);if(!s)throw new Error("Student not found.");showPanel("students",`Current Balance — ${s.name}`,`<div class="metric"><span>${esc(s.student_code)} · ${esc(s.class||"")}</span><strong>${money(s.current_balance)}</strong></div>`);return}
+  if(action.startsWith("eventreport:")){await eventReport(action.split(":")[1]);return}
+  if(action.startsWith("handover:")){const id=action.split(":")[1];const amount=prompt("Handover amount (₹):");if(amount===null)return;if(!Number.isFinite(Number(amount))||Number(amount)<=0)throw new Error("Enter a valid positive amount.");const recipient=prompt("Recipient name (optional):")||"";const description=prompt("Description (optional):")||"";const pin=pinPrompt();if(pin===null)return;await api({action:"event_handover",pin,event_id:id,amount:Number(amount),recipient_name:recipient,description});alert("Event handover recorded.");await openPanel("events");return}
+ }catch(e){msg($("panelMsg"),e.message,"err")}
+});
+$("panelBody").addEventListener("change",e=>{if(e.target.id==="restoreFile"){pendingRestorePayload=null;$("restoreBackup").disabled=true;$("restoreBackup").setAttribute("aria-disabled","true");const file=e.target.files?.[0];$("validateBackup").disabled=!file;$("restorePreview").textContent=file?`Selected: ${file.name}. Press Validate Backup to check the file.`:"Choose a JSON backup file, then press Validate Backup."}});
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();const b=$("loginBtn");b.disabled=true;b.textContent="Signing in...";try{const {data,error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await enter(data.user)}catch(x){msg($("loginMsg"),x.message,"err")}finally{b.disabled=false;b.textContent="Sign in"}});
+async function enter(user){$("loginScreen").classList.add("hidden");$("app").classList.remove("hidden");$("who").textContent=user.email||"Warden";try{await loadBase();showDashboardMetrics()}catch(e){alert("Dashboard connection error: "+e.message)}}
+$("logout").onclick=async()=>{await sb.auth.signOut();$("app").classList.add("hidden");$("loginScreen").classList.remove("hidden")};
+$("refresh").onclick=refresh;$("closePanel").onclick=closeTopPanel;
+$("panelBody").addEventListener("input",e=>{
+ if(e.target.id==="studentSearch")renderStudentTable();
+ if(e.target.id==="contributionStudentSearch"){
+  const q=e.target.value.trim().toLowerCase();
+  const list=$("contributionStudentList");
+  const rows=list?[...list.querySelectorAll(".student-choice")]:[];
+  let matches=0;
+  rows.forEach(row=>{
+   const match=!!q&&row.textContent.toLowerCase().includes(q);
+   row.style.display=match?"flex":"none";
+   if(match)matches++;
+  });
+  const count=$("contributionStudentCount");
+  if(count){
+   const selected=rows.filter(row=>row.querySelector('input[type="checkbox"]')?.checked).length;
+   count.textContent=!q
+    ?"No students displayed. Search by name or student ID to find students."
+    :(matches?`${matches} matching student(s) shown · ${selected} selected`:"No matching students found.");
+  }
+ }
+});
+$("panelBody").addEventListener("change",e=>{
+ if(e.target.matches('#contributionStudentList input[type="checkbox"]')){
+  const list=$("contributionStudentList");
+  const rows=list?[...list.querySelectorAll(".student-choice")]:[];
+  const selected=rows.filter(row=>row.querySelector('input[type="checkbox"]')?.checked).length;
+  const count=$("contributionStudentCount");
+  if(count){
+   const q=$("contributionStudentSearch")?.value.trim();
+   const matches=rows.filter(row=>row.style.display==="flex").length;
+   count.textContent=q?`${matches} matching student(s) shown · ${selected} selected`:`${selected} selected. Search to display student names.`;
+  }
+ }
+});
+$("panelBody").addEventListener("submit",async e=>{
+ e.preventDefault();try{
+  if(e.target.id==="studentTxnForm"){const amount=Number($("txnAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive amount.");await api({action:"student_transaction",pin:$("txnPin").value,student_id:$("txnStudentId").value,transaction_type:$("txnType").value,amount,description:$("txnDescription").value.trim()});await loadBase();studentsPanel();msg($("panelMsg"),"Financial transaction saved successfully.");}
+  if(e.target.id==="editStudentForm"){await api({action:"update_student",student_id:$("editStudentId").value,name:$("editStudentName").value.trim(),class:$("editStudentClass").value.trim(),student_code:$("editStudentCode").value.trim()});await loadBase();studentsPanel();msg($("panelMsg"),"Student details updated successfully.");}
+
+  if(e.target.id==="eventForm"){await api({action:"add_event",event_name:$("eventName").value.trim(),description:$("eventDesc").value.trim()});await loadBase();showPanel("addEvent","Add Event","<div class=notice>Event created successfully.</div>");}
+  if(e.target.id==="manualForm"){const pin=$("contributionPin").value;await api({action:"manual_event_contribution",pin,event_id:$("eventSelect").value,contributor_name:$("contributorName").value.trim(),amount:Number($("contributionAmount").value)});await loadBase();contributionPanel();msg($("panelMsg"),"Manual contribution saved successfully.");}
+  if(e.target.id==="registeredContributionForm"){const student_ids=[...$("contributionStudentList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);if(!student_ids.length)throw new Error("Select at least one registered student.");const amount=Number($("registeredContributionAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive contribution amount.");await api({action:"registered_event_contribution",event_id:$("registeredEventSelect").value,student_ids,amount,pin:$("registeredContributionPin").value,description:$("registeredContributionDescription").value.trim()});await loadBase();await contributionPanel();msg($("panelMsg"),`Contribution recorded for ${student_ids.length} student(s).`);}
+  if(e.target.id==="transferForm"){const sender_id=$("transferSender").value,receiver_id=$("transferReceiver").value;if(sender_id===receiver_id)throw new Error("Sender and receiver must be different students.");const amount=Number($("transferAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive transfer amount.");await api({action:"student_transfer",sender_id,receiver_id,amount,pin:$("transferPin").value,description:$("transferDescription").value.trim()});await loadBase();await openPanel("transfer");msg($("panelMsg"),"Student transfer completed successfully.");}
+  if(e.target.id==="wardenForm"){await api({action:"warden_transaction",pin:$("wardenPin").value,transaction_type:$("wardenType").value,amount:Number($("wardenAmount").value),description:$("wardenDescription").value.trim()});await wardenPanel();msg($("panelMsg"),"Warden transaction saved successfully.");}
+ }catch(x){msg($("panelMsg"),x.message,"err")}
+});
+$("panelBody").addEventListener("click",async e=>{
+ if(e.target.id==="printFundHistory"){printCurrentReport("MSPS — Total Balance and Complete Transactions","fundReportPrintable");return}
+ if(e.target.id==="printStudentStatement"){printCurrentReport("MSPS — Student Statement — "+$("panelTitle").textContent.replace(/^Statement:\s*/,""),"studentStatementPrintable");return}
+ if(e.target.id==="printHistory"){const date=$("historyDate")?.value||today();printCurrentReport((activePanel==="deposits"?"Deposit":activePanel==="withdrawals"?"Withdrawal":"Borrowing")+" report — "+date,"historyResult");return}
+ if(e.target.id==="printEventReport"){printCurrentReport("Event report — "+$("panelTitle").textContent,"eventReportPrintable");return}
+ if(e.target.id==="refreshEmailStatus"){await refreshEmailStatus();return}
+ if(e.target.id==="sendDailyEmail"||e.target.id==="sendBackupEmail"){
+  const button=e.target;const isDaily=button.id==="sendDailyEmail";const original=button.textContent;button.disabled=true;button.textContent=isDaily?"Sending report…":"Sending backup…";
+  try{const result=await invoke("amu-email-bridge",{action:isDaily?"send_daily_report":"send_backup"});msg($("panelMsg"),result.message||(isDaily?"Daily report email sent successfully.":"Backup email sent successfully."),"ok");await refreshEmailStatus()}
+  catch(err){msg($("panelMsg"),(isDaily?"Daily report":"Backup")+" email failed: "+err.message,"err")}
+  finally{button.disabled=false;button.textContent=original}
+  return;
+ }
+ if(e.target.id==="cancelTxn"||e.target.id==="cancelEdit"){studentsPanel();return}
+ if(e.target.id==="loadHistory"){try{await loadHistory(activePanel)}catch(x){msg($("panelMsg"),x.message,"err")}}
+ if(e.target.id==="generateDaily"){try{const d=await reports({action:"daily_report",date:$("emailDate").value});$("dailyPreview").textContent=JSON.stringify(d,null,2)}catch(x){msg($("panelMsg"),x.message,"err")}}
+ if(e.target.id==="validateBackup"){const file=$("restoreFile").files?.[0];const box=$("restorePreview");if(!file){box.textContent="Choose a backup file first.";return}try{const raw=await file.text();const parsed=JSON.parse(raw);pendingRestorePayload=normalizeBackupPayload(parsed);box.textContent="Backup validation successful. Seven data sections are present. REPLACEMENT mode will replace the six data tables and the three approved system settings with the backup.";box.style.background="#ecfdf3";box.style.color="#067647";$("restoreBackup").disabled=false;$("restoreBackup").removeAttribute("aria-disabled")}catch(err){pendingRestorePayload=null;$("restoreBackup").disabled=true;box.textContent="Backup validation failed: "+err.message;box.style.background="#fef2f2";box.style.color="#b42318"}}
+ if(e.target.id==="downloadBackup"){
+    const button=e.target;
+    const originalText=button.textContent;
+    button.disabled=true;
+    button.textContent="Preparing backup...";
+    try{
+      const d=await reports({action:"backup_export"});
+      const compatibleBackup=normalizeBackupPayload(d);
+      const json=JSON.stringify(compatibleBackup,null,2);
+      const filename="MSPS_Backup_"+today()+".json";
+      if(window.AMUAndroidPrint&&typeof window.AMUAndroidPrint.saveBackup==="function"){
+        const bytes=new TextEncoder().encode(json);let binary="";for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+        window.__mspsBackupSaved=(ok)=>{msg($("panelMsg"),ok?"Backup saved to your phone's Downloads folder as "+filename:"Android could not save the backup. Please open the website in Chrome and download it there.",ok?"ok":"err");delete window.__mspsBackupSaved};
+        window.AMUAndroidPrint.saveBackup(btoa(binary),filename);
+        msg($("panelMsg"),"Saving backup to your phone…","ok");
+        return;
+      }
+      // Data URLs avoid URL.createObjectURL(), unavailable in some Android
+      // in-app browsers and embedded web views.
+      let downloadUrl="data:application/json;charset=utf-8,"+encodeURIComponent(json);
+      let objectUrl=null;
+      try{if(window.URL&&typeof window.URL.createObjectURL==="function"){objectUrl=window.URL.createObjectURL(new Blob([json],{type:"application/json"}));downloadUrl=objectUrl}}catch(_){ }
+      const a=document.createElement("a");
+      a.href=downloadUrl;
+      a.download=filename;
+      a.style.display="none";
+      document.body.appendChild(a);
+      try{a.click();}finally{a.remove();if(objectUrl&&window.URL&&typeof window.URL.revokeObjectURL==="function")setTimeout(()=>window.URL.revokeObjectURL(objectUrl),1500)}
+      msg($("panelMsg"),"Backup prepared. Check your browser's Downloads folder for "+filename+". If it did not download, open this page in Chrome and try again.","ok");
+    }catch(x){
+      msg($("panelMsg"),"Backup download failed: "+x.message,"err");
+    }finally{
+      button.disabled=false;
+      button.textContent=originalText;
+    }
+  }
+ if(e.target.id==="printBalances"){const rows=balanceRows();const html=`<table><thead><tr><th>Student</th><th>Student ID</th><th>Class</th><th>Current Balance</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.student_code)}</td><td>${esc(r.class)}</td><td>${money(r.current_balance)}</td></tr>`).join("")}</tbody></table><p>Total students: ${rows.length}</p>`;printReport("MSPS — Current Student Balances",html);return}
+ if(e.target.id==="restoreBackup"){
+  if(!pendingRestorePayload){msg($("panelMsg"),"Choose and validate a backup file first.","err");return}
+  const ok=confirm("WARNING: EXACT REPLACEMENT RESTORE\\n\\nThis will DELETE and replace all existing records in students, events, student_transactions, event_contributions, event_handovers and warden_transactions with the records in this backup. It will replace only system_name, currency and currency_symbol in system_settings.\\n\\nWarden/login accounts, Common PIN/security settings and logs will NOT be changed.\\n\\nThe database operation is atomic: if any validation or insert fails, the database transaction will roll back.\\n\\nContinue with exact replacement?");
+  if(!ok)return;
+  const b=e.target;
+  b.disabled=true;
+  const old=b.textContent;
+  b.textContent="Replacing data...";
+  try{
+    const result=await reports({action:"restore_import",tables:pendingRestorePayload.tables});
+    if(result===null||result===undefined||result?.success===false){
+      throw new Error(result?.error||"The server did not confirm the restore.");
+    }
+    const counts=result.restored||result.record_counts||result.counts||result;
+    msg($("panelMsg"),"Exact replacement restore completed. Restored counts: "+JSON.stringify(counts),"ok");
+    pendingRestorePayload=null;
+    const fileInput=$("restoreFile");
+    if(fileInput)fileInput.value="";
+    await loadBase();
+    showDashboardMetrics();
+    const preview=$("restorePreview");
+    if(preview)preview.textContent="Exact replacement completed successfully. The database now contains the backup records. You can close this panel.";
+  }catch(err){
+    msg($("panelMsg"),"Restore failed: "+(err?.message||String(err)),"err");
+    const preview=$("restorePreview");
+    if(preview)preview.textContent="Restore failed. The database transaction should have rolled back. Correct the reported issue before trying again.";
+  }finally{
+    b.textContent=old;
+    b.disabled=!pendingRestorePayload;
+  }
+}
+
+});
+// Installable Android PWA shell. Only static app files are cached; API and financial data are never cached.
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+ navigator.serviceWorker.register("./service-worker.js").catch(err=>console.warn("AMU offline shell registration failed",err));
+}
+// Fresh sign-in is required each time this standalone page is opened.
+(async()=>{
+  $("app").classList.add("hidden");
+  $("loginScreen").classList.remove("hidden");
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(event==="SIGNED_OUT"){
+      $("app").classList.add("hidden");
+      $("loginScreen").classList.remove("hidden");
+      $("password").value="";
+    }
+  });
+})();
+})();
+</script>
+</body></html>
