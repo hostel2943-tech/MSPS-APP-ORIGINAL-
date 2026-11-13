@@ -251,6 +251,12 @@ input,select,textarea{font-size:16px;min-height:44px}
 }
 @media(max-width:600px) and (max-height:520px){#panel.show:has(.student-controls){min-height:0;height:88dvh}}
 
+/* Requested Android pop-up side clearance: 0.4 mm on both sides. */
+@media(max-width:600px){
+ .panel{width:calc(100vw - 0.8mm);left:50%;}
+ .mini-modal.show{padding-left:0.4mm;padding-right:0.4mm;}
+ .mini-dialog{width:min(calc(100vw - 0.8mm),430px);}
+}
 </style>
 </head>
 <body>
@@ -541,8 +547,17 @@ $("panelBody").addEventListener("change",e=>{
   }
  }
 });
+// Prevent duplicate submissions from rapid taps or repeated submit events.
+// A successful transaction clears its PIN so another operation requires fresh PIN entry.
+const __mspsSubmittingForms = new WeakSet();
 $("panelBody").addEventListener("submit",async e=>{
- e.preventDefault();const submitButton=e.target.querySelector('button[type="submit"],button:not([type])');if(submitButton){submitButton.disabled=true;submitButton.dataset.originalText=submitButton.textContent;submitButton.textContent="Processing…";}try{
+ e.preventDefault();
+ const form=e.target;
+ if(__mspsSubmittingForms.has(form))return;
+ __mspsSubmittingForms.add(form);
+ const submitButton=form.querySelector('button[type="submit"],button:not([type])');
+ if(submitButton){submitButton.disabled=true;submitButton.dataset.originalText=submitButton.textContent;submitButton.textContent="Processing…";}
+ try{
   if(e.target.id==="studentTxnForm"){const amount=Number($("txnAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive amount.");await api({action:"student_transaction",pin:$("txnPin").value,student_id:$("txnStudentId").value,transaction_type:$("txnType").value,amount,description:$("txnDescription").value.trim()});studentsPanel();msg($("panelMsg"),"Financial transaction saved successfully.");refreshBaseInBackground();}
   if(e.target.id==="editStudentForm"){await api({action:"update_student",student_id:$("editStudentId").value,name:$("editStudentName").value.trim(),class:$("editStudentClass").value.trim(),student_code:$("editStudentCode").value.trim()});studentsPanel();msg($("panelMsg"),"Student details updated successfully.");refreshBaseInBackground();}
 
@@ -551,7 +566,20 @@ $("panelBody").addEventListener("submit",async e=>{
   if(e.target.id==="registeredContributionForm"){const student_ids=[...$("contributionStudentList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);if(!student_ids.length)throw new Error("Select at least one registered student.");const amount=Number($("registeredContributionAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive contribution amount.");await api({action:"registered_event_contribution",event_id:$("registeredEventSelect").value,student_ids,amount,pin:$("registeredContributionPin").value,description:$("registeredContributionDescription").value.trim()});msg($("panelMsg"),`Contribution recorded for ${student_ids.length} student(s).`);refreshBaseInBackground();}
   if(e.target.id==="transferForm"){const sender_id=$("transferSender").value,receiver_id=$("transferReceiver").value;if(sender_id===receiver_id)throw new Error("Sender and receiver must be different students.");const amount=Number($("transferAmount").value);if(!Number.isFinite(amount)||amount<=0)throw new Error("Enter a valid positive transfer amount.");await api({action:"student_transfer",sender_id,receiver_id,amount,pin:$("transferPin").value,description:$("transferDescription").value.trim()});msg($("panelMsg"),"Student transfer completed successfully.");refreshBaseInBackground();}
   if(e.target.id==="wardenForm"){await api({action:"warden_transaction",pin:$("wardenPin").value,transaction_type:$("wardenType").value,amount:Number($("wardenAmount").value),description:$("wardenDescription").value.trim()});msg($("panelMsg"),"Warden transaction saved successfully.");refreshBaseInBackground();}
- }catch(x){msg($("panelMsg"),x.message,"err");if(submitButton){submitButton.disabled=false;submitButton.textContent=submitButton.dataset.originalText||"Submit"}}
+  // If this form remains open after a successful operation, require the warden
+  // to enter the Common PIN again before another transaction can be submitted.
+  if(form.isConnected){
+   if(["studentTxnForm","manualForm","registeredContributionForm","transferForm","wardenForm"].includes(form.id)){
+    form.querySelectorAll('input[type="password"]').forEach(input=>{input.value="";});
+   }
+   if(submitButton){submitButton.disabled=false;submitButton.textContent=submitButton.dataset.originalText||submitButton.textContent;}
+   __mspsSubmittingForms.delete(form);
+  }
+ }catch(x){
+  __mspsSubmittingForms.delete(form);
+  msg($("panelMsg"),x.message,"err");
+  if(submitButton){submitButton.disabled=false;submitButton.textContent=submitButton.dataset.originalText||"Submit"}
+ }
 });
 $("panelBody").addEventListener("click",async e=>{
  if(e.target.id==="printFundHistory"){printCurrentReport("MSPS — Total Balance and Complete Transactions","fundReportPrintable");return}
